@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Application Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px 20px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .verification {
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px solid #888;
+        }
+
+        #verificationSuccess {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border: 2px solid green;
+        }
+
+        #submitSuccess {
+            display: none;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid green;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>React Developer Application</h1>
+
+<p><strong>Company:</strong> Test Technologies</p>
+<p><strong>Location:</strong> Mumbai</p>
+
+<form id="applicationForm">
+
+    <label>Name</label>
+    <input id="name" type="text">
+
+    <label>Email</label>
+    <input id="email" type="email">
+
+    <label>Phone</label>
+    <input id="phone" type="text">
+
+    <label>Location</label>
+    <input id="location" type="text">
+
+    <label>Experience</label>
+    <input id="experience" type="text">
+
+    <div class="verification">
+
+        <h2>Human Verification</h2>
+
+        <p>Please complete the verification.</p>
+
+        <label>Enter verification code</label>
+
+        <input
+            id="verificationCode"
+            type="text"
+            placeholder="Enter code"
+        >
+
+        <button
+            type="button"
+            id="verifyButton"
+        >
+            Verify
+        </button>
+
+        <div id="verificationSuccess">
+            ✅ Verification completed successfully.
+        </div>
+
+    </div>
+
+    <br>
+
+    <button
+        type="button"
+        id="submitButton"
+        disabled
+    >
+        Submit Application
+    </button>
+
+</form>
+
+<div id="submitSuccess">
+
+    <h2>Application Submitted ✅</h2>
+
+    <p>
+        The test application was successfully completed.
+    </p>
+
+</div>
+
+
+<script>
+
+    let verified = false;
+
+
+    // ============================================
+    // VERIFICATION
+    // ============================================
+
+    document.getElementById("verifyButton").onclick = function () {
+
+        const codeInput =
+            document.getElementById("verificationCode");
+
+        const code = codeInput.value.trim();
+
+        if (code !== "123456") {
+
+            alert("Incorrect verification code.");
+
+            return;
+        }
+
+        verified = true;
+
+        alert("Verification successful!");
+
+        codeInput.disabled = true;
+
+        document.getElementById("verifyButton").disabled = true;
+
+        document.getElementById("verificationSuccess")
+            .style.display = "block";
+
+        document.getElementById("submitButton")
+            .disabled = false;
+
+        console.log("VERIFICATION COMPLETED");
+        console.log("SUBMIT BUTTON ENABLED");
+
+    };
+
+
+    // ============================================
+    // SUBMIT
+    // ============================================
+
+    document.getElementById("submitButton").onclick = function () {
+
+        console.log("SUBMIT BUTTON CLICKED");
+
+        if (!verified) {
+
+            alert("Please complete verification first.");
+
+            return;
+        }
+
+        console.log("SUBMISSION STARTED");
+
+        const submitButton =
+            document.getElementById("submitButton");
+
+        submitButton.disabled = true;
+
+        submitButton.textContent = "Submitted ✓";
+
+        document.getElementById("submitSuccess")
+            .style.display = "block";
+
+        console.log("APPLICATION SUBMITTED SUCCESSFULLY");
+
+    };
+
+</script>
+
+</body>
+</html>

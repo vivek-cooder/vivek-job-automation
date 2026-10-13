@@ -1,0 +1,31 @@
+.venv/
+.venv-clean/
+__pycache__/
+*.pyc
+profile/*
+!.gitkeep
+.env
+.env.*
+secrets/
+logs/
+*.log
+
+# Local virtual environments
+.venv-1/
+
+# Protected local application state
+data/application_queue.json
+data/applications.json
+
+# Local browser and automation artifacts
+artifacts/
+
+# Keep local configuration and project notes private
+config.json
+CHATGPT_CONTEXT.md
+
+# Keep all local application data private
+data/
+
+# Keep local browser profile and applicant details private
+profile/

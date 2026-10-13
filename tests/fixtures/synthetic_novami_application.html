@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head><title>Synthetic Novami Application</title></head>
+<body>
+  <h1>Frontend Developer (Engineering)</h1>
+  <p>Role description and responsibilities...</p>
+  <form id="novamiForm" class="space-y-5">
+    <label for="fullName">Full Name *</label>
+    <input id="fullName" name="fullName" type="text" required>
+
+    <label for="email">Email Address *</label>
+    <input id="email" name="email" type="email" required>
+
+    <label for="phone">Phone Number *</label>
+    <input id="phone" name="phone" type="tel" required>
+
+    <label for="position">Position Applying For *</label>
+    <select id="position" name="position" required>
+      <option value="">Select a position</option>
+      <option value="Frontend Developer (Engineering)">Frontend Developer (Engineering)</option>
+      <option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+      <option value="Graphic Designer">Graphic Designer</option>
+    </select>
+
+    <label for="portfolioUrl">Portfolio / Website URL (Optional)</label>
+    <input id="portfolioUrl" name="portfolioUrl" type="url">
+
+    <label for="linkedinUrl">LinkedIn Profile URL (Optional)</label>
+    <input id="linkedinUrl" name="linkedinUrl" type="url">
+
+    <label for="coverLetter">Cover Letter / Short Introduction (Optional)</label>
+    <textarea id="coverLetter" name="coverLetter"></textarea>
+
+    <label for="unknownCustom">Custom Verification Question *</label>
+    <input id="unknownCustom" name="unknownCustom" type="text" required>
+
+    <label for="unrelatedOptional">Favorite Framework (Optional)</label>
+    <input id="unrelatedOptional" name="unrelatedOptional" type="text">
+
+    <button type="submit" id="submitBtn">Submit Application for Frontend Developer</button>
+  </form>
+</body>
+</html>

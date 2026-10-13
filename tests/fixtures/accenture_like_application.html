@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Associate Engineer Application</title></head>
+<body>
+  <h1>Associate Engineer - FrontEnd</h1>
+  <form id="jobApplication" action="#">
+    <h2>Job Application</h2>
+    <label>Full Name <input name="full_name" type="text" required></label>
+    <label>Email <input name="applicant_email" type="email" required></label>
+    <label>Phone <input name="phone" type="tel" required></label>
+    <label>Resume <input name="resume" type="file"></label>
+    <label>Portfolio <input name="portfolio" type="url"></label>
+    <label>LinkedIn <input name="linkedin" type="url"></label>
+    <button id="submitButton" type="button"
+      onclick="document.body.dataset.submitClicked = 'yes'">Submit Application</button>
+  </form>
+</body>
+</html>
