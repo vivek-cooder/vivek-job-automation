@@ -1,0 +1,32 @@
+
+name: Read-only Cloud Queue Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: readonly-cloud-queue-check
+  cancel-in-progress: false
+
+jobs:
+  queue-check:
+    name: Validate and filter remote queue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out automation code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read queue and evaluate jobs without writing
+        env:
+          JOB_ALERTS_READ_TOKEN: ${{ secrets.JOB_ALERTS_READ_TOKEN }}
+        run: python -m scripts.cloud_queue_check
