@@ -138,165 +138,99 @@ def experience_flag(job):
 
 
 def role_bucket(job):
-    """Categorize a role using its title, not unrelated description mentions."""
-    title = plain_text(
-        job.get("title") or job.get("job_title")
-    ).casefold()
-
+    """Classify by job title so unrelated description mentions do not define the role."""
+    title = plain_text(job.get("title") or job.get("job_title")).casefold()
     title = re.sub(r"\bui\s*[/\-–—]\s*ux\b", "ui ux", title)
     title = re.sub(r"\bfront[\s-]?end\b", "frontend", title)
     title = re.sub(r"\s+", " ", title).strip()
 
-    has_design = bool(
-        re.search(
-            r"\b(ui ux|ux ui|ui|ux|user experience|user interface|"
-            r"product|visual|interaction)\s+"
-            r"(designer|design|designing|specialist)\b",
-            title,
-        )
-        or re.search(r"\b(product designer|visual designer)\b", title)
-    )
+    # Explicitly keep graphic-only roles out of the three target buckets.
+    if re.search(r"\b(graphic|motion|brand|print)\s+(designer|design|artist)\b", title):
+        if not re.search(r"\b(ui|ux|user experience|user interface|product designer|frontend|react|web developer)\b", title):
+            return "Other related roles"
 
-    has_frontend = bool(
-        re.search(
-            r"\b(frontend|react|javascript|web developer|"
-            r"web engineer|frontend engineer|ui developer|"
-            r"ui engineer|design technologist)\b",
-            title,
-        )
-    )
-
-    hybrid_terms = (
-        "ui ux developer",
-        "ui ux engineer",
-        "ux ui developer",
-        "ui developer",
-        "ux developer",
-        "ui engineer",
-        "design technologist",
-        "frontend designer",
-        "ui ux frontend",
-        "ui ux front end",
-    )
-
-    if any(term in title for term in hybrid_terms):
-        return "Hybrid UI/UX + Frontend"
+    has_design = bool(re.search(
+        r"\b(ui ux|ux ui|ui|ux|user experience|user interface|product|visual|interaction)\s+(designer|design|specialist)\b",
+        title,
+    ))
+    has_frontend = bool(re.search(
+        r"\b(frontend|react|javascript developer|web developer|web engineer|ui developer|ui engineer|design technologist)\b",
+        title,
+    ))
 
     if has_design and has_frontend:
         return "Hybrid UI/UX + Frontend"
 
-    design_terms = (
-        "ui ux designer",
-        "ux ui designer",
-        "ui designer",
-        "ux designer",
-        "product designer",
-        "ui ux specialist",
-        "user experience designer",
-        "user interface designer",
-        "visual designer",
-        "interaction designer",
-    )
-    if any(term in title for term in design_terms):
+    if re.search(
+        r"\b(ui ux designer|ux ui designer|ui designer|ux designer|product designer|"
+        r"user experience designer|user interface designer|visual designer|interaction designer|"
+        r"ui ux specialist)\b",
+        title,
+    ):
         return "UI/UX Design"
 
-    frontend_terms = (
-        "react developer",
-        "react engineer",
-        "react.js developer",
-        "react js developer",
-        "frontend developer",
-        "frontend engineer",
-        "web developer",
-        "javascript developer",
-        "frontend",
-    )
-    if any(term in title for term in frontend_terms):
+    if re.search(
+        r"\b(react developer|react engineer|react\.js developer|react js developer|"
+        r"frontend developer|frontend engineer|frontend|web developer|javascript developer)\b",
+        title,
+    ):
         return "Frontend / React"
 
     return "Other related roles"
 
-
 def location_classification(job):
-    """Classify location conservatively; never assume foreign roles are eligible."""
+    """Classify from explicit location data first; keep uncertain eligibility in review."""
     location = job_text(job, "location").casefold()
     title = plain_text(job.get("title") or job.get("job_title")).casefold()
     description = job_text(job, "snippet", "description").casefold()
 
     india_markers = (
-        "india",
-        "mumbai",
-        "navi mumbai",
-        "thane",
-        "dombivli",
-        "kalyan",
-        "bengaluru",
-        "bangalore",
-        "pune",
-        "hyderabad",
-        "chennai",
-        "delhi",
-        "noida",
-        "gurugram",
-        "gurgaon",
-        "kolkata",
-        "ahmedabad",
-        "indore",
-        "jaipur",
-        "kochi",
+        "india", "mumbai", "navi mumbai", "thane", "dombivli", "kalyan",
+        "bengaluru", "bangalore", "pune", "hyderabad", "chennai", "delhi",
+        "noida", "gurugram", "gurgaon", "kolkata", "ahmedabad", "indore",
+        "jaipur", "kochi", "maharashtra", "tamil nadu", "karnataka",
+        "telangana", "kerala", "gujarat", "rajasthan", "uttar pradesh",
+        "west bengal",
+    )
+    foreign_markers = (
+        "united states", "united states of america", "usa", "u.s.a.",
+        "u.s.", "new york", "california", "texas", "united kingdom",
+        "great britain", "england", "scotland", "wales", "uk", "ireland",
+        "canada", "australia", "new zealand", "germany", "france",
+        "singapore", "dubai", "uae", "united arab emirates", "netherlands",
+        "sweden", "switzerland", "spain", "italy", "japan", "south korea",
+        "hong kong", "poland", "portugal", "israel",
     )
 
-    # Prefer explicit location fields over general description mentions.
+    def has_marker(value, markers):
+        return any(re.search(r"(?<![a-z])" + re.escape(marker) + r"(?![a-z])", value) for marker in markers)
+
+    # An explicit country/city in the location field is stronger than description text.
     if location:
-        if any(marker in location for marker in india_markers):
+        if has_marker(location, india_markers):
             return "INDIA_OR_INDIA_REMOTE", 0
-        if "remote" in location and not any(
-            country in location
-            for country in (
-                "united states",
-                "usa",
-                "u.s.",
-                "united kingdom",
-                "uk",
-                "ireland",
-                "canada",
-                "australia",
-                "germany",
-                "france",
-                "singapore",
-            )
-        ):
-            return "REMOTE_LOCATION_UNCLEAR", 1
-        if any(
-            country in location
-            for country in (
-                "united states",
-                "usa",
-                "u.s.",
-                "united kingdom",
-                "uk",
-                "ireland",
-                "canada",
-                "australia",
-                "germany",
-                "france",
-                "singapore",
-            )
-        ):
+        if has_marker(location, foreign_markers):
             return "FOREIGN_LOCATION_REVIEW", 2
+        if re.search(r"\b(remote|work from home|wfh)\b", location):
+            return "REMOTE_LOCATION_UNCLEAR", 1
+        if location not in ("unknown", "n/a", "na", "not specified", "unspecified"):
+            return "LOCATION_UNCLEAR_REVIEW", 1
 
-    # Use explicit India-remote wording in title/description only as a fallback.
-    if re.search(r"\b(remote|work from home|wfh)\b.{0,35}\b(india|india only)\b", title):
+    # Only label India remote when India eligibility is explicit in the title/snippet.
+    india_remote = re.compile(
+        r"\b(india[- ]remote|remote[- ]india|remote in india|remote within india|"
+        r"india only|work from anywhere in india|based in india)\b"
+    )
+    if india_remote.search(title) or india_remote.search(description):
         return "INDIA_OR_INDIA_REMOTE", 0
 
-    if re.search(r"\b(india|india only)\b.{0,35}\b(remote|work from home|wfh)\b", title):
-        return "INDIA_OR_INDIA_REMOTE", 0
+    if has_marker(title, foreign_markers) or has_marker(description, foreign_markers):
+        return "FOREIGN_LOCATION_REVIEW", 2
 
-    if re.search(r"\b(remote|work from home|wfh)\b.{0,35}\bindia\b", description):
-        return "INDIA_OR_INDIA_REMOTE", 0
+    if re.search(r"\b(remote|work from home|wfh|anywhere)\b", title + " " + description):
+        return "REMOTE_LOCATION_UNCLEAR", 1
 
     return "LOCATION_UNCLEAR_REVIEW", 1
-
 
 def pay_classification(job):
     """Identify pay signals without inferring pay from an internship title alone."""
@@ -479,6 +413,22 @@ def main():
         evaluated["aggregator_review_flag"] = aggregator_reason
 
         evaluated["role_category"] = role_bucket(evaluated)
+
+        # Keep the shared evaluator untouched, but correct this report's score for
+        # explicit graphic-design-only titles that were mis-scored as target roles.
+        title_for_role_check = plain_text(
+            evaluated.get("title") or evaluated.get("job_title")
+        ).casefold()
+        graphic_only = (
+            re.search(r"\b(graphic|motion|brand|print)\s+(designer|design|artist)\b", title_for_role_check)
+            and evaluated["role_category"] == "Other related roles"
+        )
+        if graphic_only:
+            evaluated["suitability_score"] = 0
+            evaluated["suitability_reason"] = (
+                "Excluded from target-role scoring in this report: graphic-design-only title."
+            )
+
         valid.append(evaluated)
 
     excluded = [
