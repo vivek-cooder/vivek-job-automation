@@ -380,8 +380,16 @@ def get_score(job):
 
 
 def sort_key(job):
-    """Prefer India-eligible and non-unpaid roles, then existing suitability score."""
+    """Prioritize target role families, then location, pay signals, and score."""
+    role_priority = {
+        "Frontend / React": 0,
+        "UI/UX Design": 1,
+        "Hybrid UI/UX + Frontend": 2,
+        "Other related roles": 3,
+    }.get(job.get("role_category"), 3)
+
     return (
+        role_priority,
         job.get("location_priority", 1),
         job.get("pay_priority", 1),
         -get_score(job),
