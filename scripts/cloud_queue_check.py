@@ -1,4 +1,3 @@
-```python
 """Read-only cloud check of the job-alert queue.
 
 Features:
